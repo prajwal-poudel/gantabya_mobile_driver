@@ -34,6 +34,10 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  font_awesome_flutter: ^10.4.0
+  flutter_osm_plugin: ^0.50.0
+  expandable: ^5.0.1
+  flutter_svg: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -59,6 +63,12 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/splash_logo.png
+    - assets/images/offline_icon.svg
+    - assets/images/online_icon.svg
+    - assets/images/arrow_down.svg
+    - assets/images/arrow_up.svg
+    - assets/images/initial_location_marker.svg
+    - assets/images/destination_marker.svg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -72,10 +82,19 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets\fontFamily\poppins\Poppins-Regular.ttf
+        - asset: assets\fontFamily\poppins\Poppins-Bold.ttf
+          weight: 600
+        - asset: assets\fontFamily\poppins\Poppins-ExtraBold.ttf
+          weight: 800
+        - asset: assets\fontFamily\poppins\Poppins-BoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets\fontFamily\poppins\Poppins-Italic.ttf
+          style: italic
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
