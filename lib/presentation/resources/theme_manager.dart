@@ -13,6 +13,7 @@ ThemeData getApplicationTheme() {
       primaryColorDark: ColorManager.darkPrimary,
       disabledColor: ColorManager.grey1,
       splashColor: ColorManager.primaryOpacity70,
+      fontFamily: FontConstants.fontFamily,
       // accentColor: ColorManager.grey,
 
       // Card View Theme
@@ -45,17 +46,28 @@ ThemeData getApplicationTheme() {
         textStyle: getRegularStyle(color: ColorManager.white),
         backgroundColor: ColorManager.primary,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSize.s12)),
+            borderRadius: BorderRadius.circular(AppSize.s8)),
       )),
       // Text Theme
       textTheme: TextTheme(
-          displayLarge: getSemiBoldStyle(
-              color: ColorManager.darkGrey, fontSize: FontSize.s16),
-          titleMedium: getMediumStyle(
-              color: ColorManager.primary, fontSize: FontSize.s14),
-          bodySmall: getRegularStyle(color: ColorManager.grey1),
-          bodyLarge: getRegularStyle(color: ColorManager.grey)),
-
+        displayLarge:
+            getBoldStyle(color: ColorManager.darkGrey, fontSize: FontSize.s16),
+        displayMedium:
+            getBoldStyle(color: ColorManager.primary, fontSize: FontSize.s14),
+        displaySmall:
+            getBoldStyle(color: ColorManager.black, fontSize: FontSize.s12),
+        titleLarge:
+            getMediumStyle(fontSize: AppSize.s16, color: ColorManager.black),
+        titleMedium:
+            getMediumStyle(color: ColorManager.primary, fontSize: FontSize.s14),
+        titleSmall:
+            getMediumStyle(fontSize: AppSize.s12, color: ColorManager.black),
+        bodyLarge:
+            getRegularStyle(color: ColorManager.grey, fontSize: FontSize.s16),
+        bodyMedium:
+            getRegularStyle(color: ColorManager.grey, fontSize: FontSize.s14),
+        bodySmall: getRegularStyle(color: ColorManager.grey1),
+      ),
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         contentPadding: const EdgeInsets.all(AppPadding.p8),
