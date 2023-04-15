@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gantabya_app/domain/model/customer_data_model.dart';
 import 'package:gantabya_app/domain/model/model.dart';
 import 'package:gantabya_app/presentation/widget/ride_information.dart';
 
@@ -99,7 +100,7 @@ class ConfirmationDialog extends StatelessWidget {
 }
 
 class RideRequestDialog extends StatelessWidget {
-  CustomerInfo customerInfo;
+  CustomerDataModel customerInfo;
   Function confirmationFunction;
   RideRequestDialog(
       {required this.customerInfo,
@@ -150,7 +151,7 @@ class RideRequestDialog extends StatelessWidget {
     );
   }
 
-  Widget _getDialogContent(BuildContext context, CustomerInfo customerInfo,
+  Widget _getDialogContent(BuildContext context, CustomerDataModel customerInfo,
       Function confirmationFunction) {
     return Column(
       children: [

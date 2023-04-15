@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gantabya_app/domain/model/customer_data_model.dart';
 import 'package:gantabya_app/domain/model/model.dart';
 import 'package:gantabya_app/presentation/resources/assets_manager.dart';
 import 'package:gantabya_app/presentation/resources/color_manager.dart';
 import 'package:gantabya_app/presentation/resources/routes_manager.dart';
 import 'package:gantabya_app/presentation/resources/strings_manager.dart';
 import 'package:gantabya_app/presentation/resources/values_manager.dart';
+import 'package:gantabya_app/presentation/utils/calculation_utils.dart';
 import 'package:gantabya_app/presentation/widget/map_with_route.dart';
 
 class CustomerPickupPage extends StatefulWidget {
   static const route = "/customerPickup";
-  CustomerInfo customerInfo;
-  GeoPoint geoPoint = GeoPoint(latitude: 27.6866, longitude: 83.4323);
+  CustomerDataModel customerInfo;
   CustomerPickupPage({required this.customerInfo, super.key});
 
   @override
@@ -26,9 +27,25 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
     // initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
     areaLimit: const BoundingBox.world(),
   );
+  GeoPoint geoPoint = GeoPoint(latitude: 27.6866, longitude: 83.4323);
 
   bool isExpanded = false;
   bool showExpansion = false;
+  String? sourceAddress;
+  String? destinationAddress;
+
+  @override
+  void initState() {
+    // getAddressFormCoordinates();
+    super.initState();
+  }
+
+  // getAddressFormCoordinates() async {
+  //   sourceAddress =
+  //       await GeographyUtils.getAddressFromCood(widget.customerInfo.source);
+  //   destinationAddress = await GeographyUtils.getAddressFromCood(
+  //       widget.customerInfo.destination);
+  // }
 
   @override
   void dispose() {
@@ -55,8 +72,7 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
       ),
       body: Stack(
         children: [
-          MapWithRoute(
-              mapController: mapController, destination: widget.geoPoint),
+          MapWithRoute(mapController: mapController, destination: geoPoint),
           Positioned(
             bottom: 0,
             child: AnimatedContainer(
@@ -125,7 +141,7 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.customerInfo.pickUpAddress,
+            widget.customerInfo.sourceAddress,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           Column(
@@ -141,7 +157,7 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
                       onPressed: () {
                         Navigator.popAndPushNamed(
                             context, Routes.customerDropOffPage,
-                            arguments: widget.customerInfo as CustomerInfo);
+                            arguments: widget.customerInfo);
                       },
                       child: Text(
                         "Start Ride",
@@ -168,21 +184,21 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Column(
-              children: [
-                Text(
-                  "Est. Time",
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(color: ColorManager.lightGrey),
-                ),
-                const SizedBox(
-                  height: AppSize.s12,
-                ),
-                Text("5 Min", style: Theme.of(context).textTheme.titleLarge)
-              ],
-            ),
+            // Column(
+            //   children: [
+            //     Text(
+            //       "Est. Time",
+            //       style: Theme.of(context)
+            //           .textTheme
+            //           .titleMedium!
+            //           .copyWith(color: ColorManager.lightGrey),
+            //     ),
+            //     const SizedBox(
+            //       height: AppSize.s12,
+            //     ),
+            //     Text("5 Min", style: Theme.of(context).textTheme.titleLarge)
+            //   ],
+            // ),
             Column(
               children: [
                 Text(
@@ -195,7 +211,9 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
                 const SizedBox(
                   height: AppSize.s12,
                 ),
-                Text("1.2 KM", style: Theme.of(context).textTheme.titleLarge)
+                Text(
+                    "${GeographyUtils.distanceBetweenTwoPoints(LatLng(latitude: geoPoint.latitude, longitude: geoPoint.longitude), LatLng(latitude: widget.customerInfo.source.latitude, longitude: widget.customerInfo.source.longitude)).toStringAsFixed(2)} KM",
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
             Column(
@@ -210,7 +228,8 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
                 const SizedBox(
                   height: AppSize.s12,
                 ),
-                Text("Rs 500", style: Theme.of(context).textTheme.titleLarge)
+                Text(widget.customerInfo.totalAmount.toStringAsFixed(2),
+                    style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
           ],

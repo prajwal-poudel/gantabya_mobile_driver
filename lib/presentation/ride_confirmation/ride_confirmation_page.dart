@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gantabya_app/domain/model/customer_data_model.dart';
 import 'package:gantabya_app/domain/model/model.dart';
 import 'package:gantabya_app/presentation/driver_pickup/goto_pickup.dart';
 import 'package:gantabya_app/presentation/resources/color_manager.dart';
@@ -12,23 +13,15 @@ import '../widget/dialog_box.dart';
 
 class RideConfirmationPage extends StatefulWidget {
   static const route = "/rideConfirmation";
-  const RideConfirmationPage({super.key});
+
+  CustomerDataModel customerInfo;
+  RideConfirmationPage({required this.customerInfo, super.key});
 
   @override
   State<RideConfirmationPage> createState() => _RideConfirmationPageState();
 }
 
 class _RideConfirmationPageState extends State<RideConfirmationPage> {
-  CustomerInfo customerInfo = CustomerInfo(
-      id: 1,
-      profileImage:
-          "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      fullName: "John Doe",
-      distanceFromDriver: 2.5,
-      totalCost: 100.50,
-      dropOffAddress: "Tilottama-2,Rupandehi",
-      pickUpAddress: "Butwal-10,kalikanagar",
-      rideDistance: 2.0);
   @override
   Widget build(BuildContext context) {
     return _mainRideConfirmationUi();
@@ -45,7 +38,7 @@ class _RideConfirmationPageState extends State<RideConfirmationPage> {
                 statusBarIconBrightness: Brightness.dark)),
         body: Column(
           children: [
-            RideInformation(customerInfo: customerInfo),
+            RideInformation(customerInfo: widget.customerInfo),
             const SizedBox(
               height: AppSize.s18,
             ),
@@ -65,7 +58,7 @@ class _RideConfirmationPageState extends State<RideConfirmationPage> {
                 child: ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, Routes.customerPickupPage,
-                          arguments: customerInfo);
+                          arguments: widget.customerInfo);
                     },
                     child: const Text(AppString.gotoPickUp))),
           ],

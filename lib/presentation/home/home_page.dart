@@ -1,4 +1,3 @@
-import 'package:expandable/expandable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
@@ -11,7 +10,11 @@ import 'package:gantabya_app/presentation/resources/strings_manager.dart';
 import 'package:gantabya_app/presentation/resources/values_manager.dart';
 import 'package:gantabya_app/presentation/widget/dialog_box.dart';
 import 'package:gantabya_app/presentation/widget/map.dart';
+import '../../domain/model/customer_data_model.dart';
+
+import '../widget/ride_information.dart';
 import './home_page_widgets.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class HomePage extends StatefulWidget {
   static const route = "/home";
@@ -22,15 +25,91 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  IO.Socket? socket;
   bool isActive = false;
+  bool isExpanded = false;
+  List<CustomerDataModel> incommingRequests = [
+    CustomerDataModel(
+        id: 1,
+        profilePicture:
+            "https://images.pexels.com/photos/1542085/pexels-photo-1542085.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+        fullName: "fullName",
+        // distanceFromDriver: 1.2,
+        totalAmount: 200.00,
+        source: LatLng(latitude: 88.2322, longitude: 27.2722),
+        destination: LatLng(latitude: 88.2322, longitude: 27.2722),
+        sourceAddress: "sourceAddress",
+        destinationAddress: "destinationAddress",
+        numberOfSeats: 2),
+    CustomerDataModel(
+        id: 1,
+        profilePicture:
+            "https://images.pexels.com/photos/1542085/pexels-photo-1542085.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+        fullName: "fullName",
+        // distanceFromDriver: 1.2,
+        totalAmount: 200.00,
+        source: LatLng(latitude: 88.2322, longitude: 27.2722),
+        destination: LatLng(latitude: 88.2322, longitude: 27.2722),
+        sourceAddress: "sourceAddress",
+        destinationAddress: "destinationAddress",
+        numberOfSeats: 2),
+  ];
 
-  double containerHeight = AppSize.s60;
+  double containerHeight = AppSize.s80;
 
   MapController mapController = MapController.withUserPosition(
     // initMapWithUserPosition: true,
     // initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
     areaLimit: const BoundingBox.world(),
   );
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  initSocket() {
+    socket = IO.io("http://192.168.137.17:5000", <String, dynamic>{
+      'autoConnect': false,
+      'transports': ['websocket'],
+    });
+    socket?.connect();
+    socket?.onConnect((_) {
+      print('Connection established');
+      final driverInfo = {
+        "driverId": 1,
+        "vehicleType": "auto",
+        "currentLocation": {"lat": 27.664070, "lng": 83.465501},
+        "currentBalance": 200.00
+      };
+      socket?.emit("driver", driverInfo);
+    });
+
+    socket?.on("reqDriver", (data) {
+      data["driverId"] = 1;
+      // customerPopup(data);
+      expandableWidget();
+      setState(() {
+        incommingRequests.add(
+          CustomerDataModel(
+              id: data["id"],
+              profilePicture: data["profilePicture"],
+              fullName: data["fullName"],
+              // distanceFromDriver: 1.2,
+              totalAmount: data["totalAmount"],
+              source: LatLng(
+                  latitude: data["source"]["latitude"],
+                  longitude: data["source"]["longitude"]),
+              destination: LatLng(
+                  latitude: data["source"]["latitude"],
+                  longitude: data["source"]["longitude"]),
+              sourceAddress: data["sourceAddress"],
+              destinationAddress: data["destinationAddress"],
+              numberOfSeats: data["numberOfSeats"]),
+        );
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return _homeBaseUi();
@@ -80,6 +159,9 @@ class _HomePageState extends State<HomePage> {
                                   setState(() {
                                     isActive = !isActive;
                                   });
+                                  if (isActive) {
+                                    initSocket();
+                                  }
                                   Navigator.pop(context);
                                 },
                               ));
@@ -96,11 +178,7 @@ class _HomePageState extends State<HomePage> {
           Expanded(
               child: Stack(
             children: [
-              Container(
-                  // color: Colors.red,
-
-                  // map goes here
-                  child: SimpleMap(mapController: mapController)),
+              SimpleMap(mapController: mapController),
               ActiveInactiveMessage(
                 isActive: isActive,
                 onClose: () {
@@ -110,7 +188,7 @@ class _HomePageState extends State<HomePage> {
               Align(
                 alignment: Alignment.bottomCenter,
                 child: AnimatedContainer(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 800),
                     curve: Curves.linear,
                     padding: const EdgeInsets.symmetric(
                         horizontal: AppPadding.p8, vertical: AppPadding.p8),
@@ -130,26 +208,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                             InkWell(
                               onTap: () {
-                                // setState(() {
-                                //   containerHeight = AppSize.s180;
-                                // });
-                                showDialog(
-                                    context: context,
-                                    builder: (_) => RideRequestDialog(
-                                          confirmationFunction: () {},
-                                          customerInfo: CustomerInfo(
-                                              id: 1,
-                                              profileImage:
-                                                  "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-                                              fullName: "John Doe",
-                                              distanceFromDriver: 2.5,
-                                              totalCost: 100.50,
-                                              dropOffAddress:
-                                                  "Tilottama-2,Rupandehi",
-                                              pickUpAddress:
-                                                  "Butwal-10,kalikanagar",
-                                              rideDistance: 2.0),
-                                        ));
+                                expandableWidget();
+                                // customerPopup();
                               },
                               child: Row(
                                 children: [
@@ -161,16 +221,95 @@ class _HomePageState extends State<HomePage> {
                                   const SizedBox(
                                     width: AppSize.s12,
                                   ),
-                                  SvgPicture.asset(ImageAssets.arrowUp)
+                                  isExpanded
+                                      ? SvgPicture.asset(ImageAssets.arrowDown)
+                                      : SvgPicture.asset(ImageAssets.arrowUp)
                                 ],
                               ),
                             )
                           ],
                         ),
-                        Text(
-                          AppString.noIncomingRequest,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
+                        incommingRequests.isEmpty
+                            ? Text(
+                                AppString.noIncomingRequest,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              )
+                            : isExpanded
+                                ? Expanded(
+                                    child: ListView.builder(
+                                        itemCount: incommingRequests.length,
+                                        itemBuilder: (context, index) =>
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: AppPadding.p8),
+                                              child: Card(
+                                                elevation: AppSize.s1_5,
+                                                child: Container(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      vertical: AppSize.s12),
+                                                  child: Column(
+                                                    children: [
+                                                      RideInformation(
+                                                        customerInfo:
+                                                            incommingRequests[
+                                                                index],
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceEvenly,
+                                                        children: [
+                                                          ElevatedButton(
+                                                              style: ButtonStyle(
+                                                                  fixedSize: MaterialStateProperty.all(const Size(
+                                                                      AppSize
+                                                                          .s150,
+                                                                      AppSize
+                                                                          .s40)),
+                                                                  backgroundColor:
+                                                                      MaterialStateProperty.all(
+                                                                          ColorManager
+                                                                              .green)),
+                                                              onPressed: () {},
+                                                              child: const Text(
+                                                                  "Accept")),
+                                                          ElevatedButton(
+                                                              style:
+                                                                  ButtonStyle(
+                                                                fixedSize: MaterialStateProperty
+                                                                    .all(const Size(
+                                                                        AppSize
+                                                                            .s150,
+                                                                        AppSize
+                                                                            .s40)),
+                                                              ),
+                                                              onPressed: () {},
+                                                              child: Text(
+                                                                  "Reject")),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            )),
+                                  )
+                                : Container(
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: AppSize.s12,
+                                        vertical: AppSize.s8),
+                                    width: double.infinity,
+                                    color: ColorManager.primary,
+                                    child: Text(
+                                      "You have ${incommingRequests.length} incomming requests",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall!
+                                          .copyWith(color: ColorManager.white),
+                                    ),
+                                  )
                       ],
                     )
                     // ExpandablePanel(
@@ -205,5 +344,31 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  expandableWidget() {
+    if (!isExpanded) {
+      if (incommingRequests.length > 1) {
+        setState(() {
+          containerHeight = MediaQuery.of(context).size.height * 0.7;
+        });
+      } else if (incommingRequests.length == 1) {
+        setState(() {
+          containerHeight = AppSize.s400;
+        });
+      } else {
+        setState(() {
+          containerHeight = AppSize.s100;
+        });
+      }
+    } else {
+      setState(() {
+        containerHeight = AppSize.s100;
+      });
+    }
+
+    setState(() {
+      isExpanded = !isExpanded;
+    });
   }
 }

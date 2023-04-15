@@ -30,6 +30,7 @@ class AppSize {
   static const double s28 = 28.0;
   static const double s60 = 60.0;
   static const double s70 = 70.0;
+  static const double s80 = 80.0;
   static const double s40 = 40.0;
   static const double s65 = 65.0;
   static const double s100 = 100.0;
@@ -37,6 +38,7 @@ class AppSize {
   static const double s180 = 180.0;
   static const double s200 = 200.0;
   static const double s250 = 250.0;
+  static const double s400 = 400.0;
 }
 
 class DurationConstraints {

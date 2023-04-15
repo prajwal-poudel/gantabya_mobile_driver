@@ -1,15 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:gantabya_app/domain/model/model.dart';
+
 import 'package:gantabya_app/presentation/resources/color_manager.dart';
 import 'package:gantabya_app/presentation/resources/strings_manager.dart';
 import 'package:gantabya_app/presentation/resources/values_manager.dart';
+import 'package:gantabya_app/presentation/utils/calculation_utils.dart';
 
-class RideInformation extends StatelessWidget {
-  CustomerInfo customerInfo;
+import '../../domain/model/customer_data_model.dart';
+
+class RideInformation extends StatefulWidget {
+  CustomerDataModel customerInfo;
 
   RideInformation({required this.customerInfo, super.key});
+
+  @override
+  State<RideInformation> createState() => _RideInformationState();
+}
+
+class _RideInformationState extends State<RideInformation> {
+  String? sourceAddress;
+  String? destinationAddress;
+
+  @override
+  void initState() {
+    // getCalculationInfo();
+    super.initState();
+  }
+
+  // getCalculationInfo() async {
+  //   sourceAddress =
+  //       await GeographyUtils.getAddressFromCood(widget.customerInfo.source);
+  //   destinationAddress = await GeographyUtils.getAddressFromCood(
+  //       widget.customerInfo.destination);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -21,28 +43,37 @@ class RideInformation extends StatelessWidget {
         ListTile(
           leading: CircleAvatar(
             radius: AppSize.s28,
-            backgroundImage: NetworkImage(customerInfo.profileImage),
+            backgroundImage: NetworkImage(widget.customerInfo.profilePicture),
           ),
           title: Text(
-            customerInfo.fullName,
+            widget.customerInfo.fullName,
             style: Theme.of(context).textTheme.titleSmall,
           ),
-          subtitle: Text("${customerInfo.distanceFromDriver} KM"),
+          subtitle: Text(
+              "${(GeographyUtils.distanceBetweenTwoPoints(widget.customerInfo.source, LatLng(latitude: 83.454, longitude: 27.334))).toStringAsFixed(2)} KM"),
           trailing: Text(
-            "RS. ${customerInfo.totalCost}",
+            "RS. ${widget.customerInfo.totalAmount}",
             style: Theme.of(context).textTheme.titleSmall,
           ),
         ),
         Divider(
           color: ColorManager.lightGrey,
         ),
-        _customerLocationInfo(context, AppString.pickUp,
-            customerInfo.pickUpAddress, customerInfo.distanceFromDriver),
+        _customerLocationInfo(
+            context,
+            AppString.pickUp,
+            widget.customerInfo.sourceAddress,
+            GeographyUtils.distanceBetweenTwoPoints(widget.customerInfo.source,
+                LatLng(latitude: 83.454, longitude: 27.334))),
         Divider(
           color: ColorManager.lightGrey,
         ),
-        _customerLocationInfo(context, AppString.dropOff,
-            customerInfo.dropOffAddress, customerInfo.rideDistance),
+        _customerLocationInfo(
+            context,
+            AppString.dropOff,
+            widget.customerInfo.destinationAddress,
+            GeographyUtils.distanceBetweenTwoPoints(
+                widget.customerInfo.source, widget.customerInfo.destination)),
         Divider(
           color: ColorManager.lightGrey,
         ),
@@ -72,7 +103,7 @@ class RideInformation extends StatelessWidget {
                 address,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              Text("${distance} KM")
+              Text("${distance.toStringAsFixed(2)} KM")
             ],
           )
         ],

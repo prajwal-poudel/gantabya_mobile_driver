@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gantabya_app/domain/model/customer_data_model.dart';
 import 'package:gantabya_app/domain/model/model.dart';
 import 'package:gantabya_app/presentation/driver_pickup/drop_off_customer.dart';
 import 'package:gantabya_app/presentation/driver_pickup/goto_pickup.dart';
@@ -49,11 +50,14 @@ class RouteGenerator {
       case Routes.home:
         return MaterialPageRoute(builder: (_) => const HomePage());
       case Routes.rideConfirmation:
-        return MaterialPageRoute(builder: (_) => const RideConfirmationPage());
+        return MaterialPageRoute(
+            builder: (_) => RideConfirmationPage(
+                  customerInfo: routeSettings.arguments as CustomerDataModel,
+                ));
       case Routes.customerPickupPage:
         return MaterialPageRoute(
             builder: (_) => CustomerPickupPage(
-                customerInfo: routeSettings.arguments as CustomerInfo));
+                customerInfo: routeSettings.arguments as CustomerDataModel));
       case Routes.customerDropOffPage:
         return MaterialPageRoute(
             builder: (_) => CustomerDropOffPage(
