@@ -16,4 +16,18 @@ class ImageAssets {
   static const String initialLocationMarker =
       "$IMAGE_PATH/initial_location_marker.svg";
   static const String destinationMarker = "$IMAGE_PATH/destination_marker.svg";
+  static const String loading = "$IMAGE_PATH/loading.json";
+  static const String success = "$IMAGE_PATH/success-popup.json";
+  static const String alert = "$IMAGE_PATH/alert.json";
+  static const String serverError = "$IMAGE_PATH/server-error.json";
+  static const String notFound = "$IMAGE_PATH/not-found.json";
+  static const String flag = "$IMAGE_PATH/flag.png";
+  static const String loginRegister = "$IMAGE_PATH/login-register.png";
+  static const String eRickshaw = "$IMAGE_PATH/e_rickshaw.svg";
+  static const String auto = "$IMAGE_PATH/auto.svg";
+  static const String taxi = "$IMAGE_PATH/taxi.svg";
+  static const String imageChoose = "$IMAGE_PATH/image_choose.svg";
+  static const String imagesList = "$IMAGE_PATH/imageslist.svg";
+  static const String imageUpload = "$IMAGE_PATH/image_upload.svg";
+  static const String idConfirmation = "$IMAGE_PATH/id-confirmation.png";
 }

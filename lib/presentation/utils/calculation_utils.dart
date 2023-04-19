@@ -6,7 +6,7 @@ class GeographyUtils {
   static Future<String> getAddressFromCood(LatLng coordinate) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
-          coordinate.latitude, coordinate.longitude);
+          coordinate.latitude!, coordinate.longitude!);
       Placemark placemark = placemarks[0];
       String address =
           '${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea} ';
@@ -18,10 +18,10 @@ class GeographyUtils {
 
   static double distanceBetweenTwoPoints(LatLng cood1, LatLng cood2) {
     final distance = Geolocator.distanceBetween(
-      cood1.latitude,
-      cood1.longitude,
-      cood2.latitude,
-      cood2.longitude,
+      cood1.latitude!,
+      cood1.longitude!,
+      cood2.latitude!,
+      cood2.longitude!,
     );
     return (distance / 1000);
   }

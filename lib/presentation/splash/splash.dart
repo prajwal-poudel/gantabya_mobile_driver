@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../app/provider/user_provider/user_provider.dart';
 import '../resources/assets_manager.dart';
 import '../resources/color_manager.dart';
 import '../resources/routes_manager.dart';
@@ -20,8 +22,13 @@ class _SplashViewState extends State<SplashView> {
     _timer = Timer(Duration(seconds: 4), _goNext);
   }
 
-  _goNext() {
-    Navigator.pushReplacementNamed(context, Routes.home);
+  _goNext() async {
+    if (await Provider.of<UserProvider>(context, listen: false)
+        .checkAuthentication()) {
+      Navigator.pushReplacementNamed(context, Routes.landing);
+    } else {
+      Navigator.pushReplacementNamed(context, Routes.loginRoute);
+    }
   }
 
   @override

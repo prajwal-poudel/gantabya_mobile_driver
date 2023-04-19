@@ -141,7 +141,7 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.customerInfo.sourceAddress,
+            widget.customerInfo.sourceAddress ?? "UNKNOWN",
             style: Theme.of(context).textTheme.titleLarge,
           ),
           Column(
@@ -212,7 +212,7 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
                   height: AppSize.s12,
                 ),
                 Text(
-                    "${GeographyUtils.distanceBetweenTwoPoints(LatLng(latitude: geoPoint.latitude, longitude: geoPoint.longitude), LatLng(latitude: widget.customerInfo.source.latitude, longitude: widget.customerInfo.source.longitude)).toStringAsFixed(2)} KM",
+                    "${GeographyUtils.distanceBetweenTwoPoints(LatLng(latitude: geoPoint.latitude, longitude: geoPoint.longitude), LatLng(latitude: widget.customerInfo.source!.latitude, longitude: widget.customerInfo.source!.longitude)).toStringAsFixed(2)} KM",
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
@@ -228,7 +228,9 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
                 const SizedBox(
                   height: AppSize.s12,
                 ),
-                Text(widget.customerInfo.totalAmount.toStringAsFixed(2),
+                Text(
+                    (widget.customerInfo.totalAmount ?? 0.00)
+                        .toStringAsFixed(2),
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
