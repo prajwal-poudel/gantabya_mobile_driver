@@ -1,8 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:gantabya_app/app/provider/location_provider/location_provider.dart';
+import 'package:gantabya_app/app/provider/user_provider/user_provider.dart';
+import 'package:gantabya_app/data/response/user_model_response.dart';
 import 'package:gantabya_app/domain/model/model.dart';
 import 'package:gantabya_app/presentation/resources/assets_manager.dart';
 import 'package:gantabya_app/presentation/resources/color_manager.dart';
@@ -10,6 +15,10 @@ import 'package:gantabya_app/presentation/resources/strings_manager.dart';
 import 'package:gantabya_app/presentation/resources/values_manager.dart';
 import 'package:gantabya_app/presentation/widget/dialog_box.dart';
 import 'package:gantabya_app/presentation/widget/map.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import '../../app/constant.dart';
+import '../../app/functions.dart';
 import '../../domain/model/customer_data_model.dart';
 
 import '../widget/ride_information.dart';
@@ -28,32 +37,7 @@ class _HomePageState extends State<HomePage> {
   IO.Socket? socket;
   bool isActive = false;
   bool isExpanded = false;
-  List<CustomerDataModel> incommingRequests = [
-    CustomerDataModel(
-        id: 1,
-        profilePicture:
-            "https://images.pexels.com/photos/1542085/pexels-photo-1542085.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        fullName: "fullName",
-        // distanceFromDriver: 1.2,
-        totalAmount: 200.00,
-        source: LatLng(latitude: 88.2322, longitude: 27.2722),
-        destination: LatLng(latitude: 88.2322, longitude: 27.2722),
-        sourceAddress: "sourceAddress",
-        destinationAddress: "destinationAddress",
-        numberOfSeats: 2),
-    CustomerDataModel(
-        id: 1,
-        profilePicture:
-            "https://images.pexels.com/photos/1542085/pexels-photo-1542085.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-        fullName: "fullName",
-        // distanceFromDriver: 1.2,
-        totalAmount: 200.00,
-        source: LatLng(latitude: 88.2322, longitude: 27.2722),
-        destination: LatLng(latitude: 88.2322, longitude: 27.2722),
-        sourceAddress: "sourceAddress",
-        destinationAddress: "destinationAddress",
-        numberOfSeats: 2),
-  ];
+  List<CustomerDataModel> incommingRequests = [];
 
   double containerHeight = AppSize.s80;
 
@@ -62,13 +46,25 @@ class _HomePageState extends State<HomePage> {
     // initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
     areaLimit: const BoundingBox.world(),
   );
+  UserDataModel? driverData;
   @override
   void initState() {
     super.initState();
   }
 
-  initSocket() {
-    socket = IO.io("http://192.168.137.17:5000", <String, dynamic>{
+  getCurrentUserData() async {
+    driverData = Provider.of<UserProvider>(context, listen: false).userData;
+  }
+
+  // getCurrentLocation() async {}
+
+  initSocket() async {
+    Position currentLocation =
+        await Provider.of<LocationProvider>(context, listen: false)
+            .fetchCurrentLocation();
+    getCurrentUserData();
+
+    socket = IO.io(Constant.baseUrl, <String, dynamic>{
       'autoConnect': false,
       'transports': ['websocket'],
     });
@@ -76,10 +72,16 @@ class _HomePageState extends State<HomePage> {
     socket?.onConnect((_) {
       print('Connection established');
       final driverInfo = {
-        "driverId": 1,
-        "vehicleType": "auto",
-        "currentLocation": {"lat": 27.664070, "lng": 83.465501},
-        "currentBalance": 200.00
+        "driver_id": driverData?.id,
+        "driver_fullname": driverData?.fullName,
+        "driver_profile_picture": driverData?.profilePicture,
+        "vehicle_name":
+            driverData?.driverData!.vehicleInfo!.vehicleType!.vehicleName,
+        "current_location": {
+          "lat": currentLocation.latitude,
+          "lng": currentLocation.longitude
+        },
+        "current_balance": driverData?.driverData!.wallet!.currentBalance
       };
       socket?.emit("driver", driverInfo);
     });
@@ -87,26 +89,12 @@ class _HomePageState extends State<HomePage> {
     socket?.on("reqDriver", (data) {
       data["driverId"] = 1;
       // customerPopup(data);
-      expandableWidget();
+      log(data.toString());
+      var incomingData = CustomerDataModel.fromJson(data["booking"]);
       setState(() {
-        incommingRequests.add(
-          CustomerDataModel(
-              id: data["id"],
-              profilePicture: data["profilePicture"],
-              fullName: data["fullName"],
-              // distanceFromDriver: 1.2,
-              totalAmount: data["totalAmount"],
-              source: LatLng(
-                  latitude: data["source"]["latitude"],
-                  longitude: data["source"]["longitude"]),
-              destination: LatLng(
-                  latitude: data["source"]["latitude"],
-                  longitude: data["source"]["longitude"]),
-              sourceAddress: data["sourceAddress"],
-              destinationAddress: data["destinationAddress"],
-              numberOfSeats: data["numberOfSeats"]),
-        );
+        incommingRequests.add(incomingData);
       });
+      expandableWidget();
     });
   }
 
@@ -260,20 +248,36 @@ class _HomePageState extends State<HomePage> {
                                                             MainAxisAlignment
                                                                 .spaceEvenly,
                                                         children: [
-                                                          ElevatedButton(
-                                                              style: ButtonStyle(
-                                                                  fixedSize: MaterialStateProperty.all(const Size(
-                                                                      AppSize
-                                                                          .s150,
-                                                                      AppSize
-                                                                          .s40)),
-                                                                  backgroundColor:
-                                                                      MaterialStateProperty.all(
-                                                                          ColorManager
-                                                                              .green)),
-                                                              onPressed: () {},
-                                                              child: const Text(
-                                                                  "Accept")),
+                                                          Consumer<
+                                                                  UserProvider>(
+                                                              builder: (context,
+                                                                  userProvider,
+                                                                  _) {
+                                                            return ElevatedButton(
+                                                                style: ButtonStyle(
+                                                                    fixedSize: MaterialStateProperty.all(const Size(
+                                                                        AppSize
+                                                                            .s150,
+                                                                        AppSize
+                                                                            .s40)),
+                                                                    backgroundColor:
+                                                                        MaterialStateProperty.all(ColorManager
+                                                                            .green)),
+                                                                onPressed: () {
+                                                                  // call socket channel
+                                                                  socket?.emit(
+                                                                      "driverConfirm",
+                                                                      {
+                                                                        "driver_id": userProvider
+                                                                            .userData
+                                                                            .id,
+                                                                        "customer_id":
+                                                                            incommingRequests[index].id
+                                                                      });
+                                                                },
+                                                                child: const Text(
+                                                                    "Accept"));
+                                                          }),
                                                           ElevatedButton(
                                                               style:
                                                                   ButtonStyle(
@@ -284,8 +288,16 @@ class _HomePageState extends State<HomePage> {
                                                                         AppSize
                                                                             .s40)),
                                                               ),
-                                                              onPressed: () {},
-                                                              child: Text(
+                                                              onPressed: () {
+                                                                // remove from list
+                                                                setState(() {
+                                                                  incommingRequests
+                                                                      .removeAt(
+                                                                          index);
+                                                                });
+                                                                expandableWidget();
+                                                              },
+                                                              child: const Text(
                                                                   "Reject")),
                                                         ],
                                                       )

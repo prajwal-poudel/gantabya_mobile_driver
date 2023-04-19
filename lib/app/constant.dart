@@ -1,4 +1,3 @@
 class Constant {
-  static const String baseUrl = "https://prajwal123.mocklab.io";
-  static const String token = "api token goes here";
+  static const String baseUrl = "http://192.168.1.69:5000";
 }

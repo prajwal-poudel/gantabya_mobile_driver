@@ -1,169 +1,208 @@
-// import 'dart:developer';
+// ignore_for_file: use_build_context_synchronously
 
-// import 'package:flutter/material.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
-// import 'package:learn_clean_architecture/app/di.dart';
-// import 'package:learn_clean_architecture/presentation/login/login_view_model.dart';
-// import 'package:learn_clean_architecture/presentation/resources/assets_manager.dart';
-// import 'package:learn_clean_architecture/presentation/resources/color_manager.dart';
-// import 'package:learn_clean_architecture/presentation/resources/routes_manager.dart';
-// import 'package:learn_clean_architecture/presentation/resources/strings_manager.dart';
-// import 'package:learn_clean_architecture/presentation/resources/values_manager.dart';
+import 'package:flutter/material.dart';
+import 'package:gantabya_app/presentation/login/login_widget.dart';
 
-// class LoginView extends StatefulWidget {
-//   const LoginView({Key? key}) : super(key: key);
+import 'package:provider/provider.dart';
 
-//   @override
-//   State<LoginView> createState() => _LoginViewState();
-// }
+import '../../app/provider/user_provider/user_provider.dart';
+import '../../data/network/error_handler.dart';
+import '../resources/assets_manager.dart';
+import '../resources/color_manager.dart';
+import '../resources/routes_manager.dart';
+import '../resources/values_manager.dart';
+import '../widget/dialog_box.dart';
+import '../widget/flush_bar.dart';
 
-// class _LoginViewState extends State<LoginView> {
-//   // ignore: prefer_final_fields
-//   LoginViewModel _viewModel =
-//       instance<LoginViewModel>(); // todo pass here loginUseCase
+class LoginPage extends StatefulWidget {
+  static const String route = "/login";
+  const LoginPage({super.key});
 
-//   TextEditingController _userNameController = TextEditingController();
-//   TextEditingController _passwordController = TextEditingController();
-//   final _formKey = GlobalKey<FormState>();
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
 
-//   _bind() {
-//     _viewModel.start();
-//     _userNameController
-//         .addListener(() => _viewModel.setUsername(_userNameController.text));
-//     _passwordController
-//         .addListener(() => _viewModel.setPassword(_passwordController.text));
-//   }
+class _LoginPageState extends State<LoginPage> {
+  GlobalKey<FormState> _forKey = GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context) {
+    UserProvider userProvider = Provider.of<UserProvider>(context);
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppPadding.p40, vertical: AppPadding.p8),
+          child: SingleChildScrollView(
+            child: Column(
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset(ImageAssets.loginRegister),
+                const SizedBox(
+                  height: AppSize.s40,
+                ),
+                Form(
+                    key: _forKey,
+                    child: Column(
+                      children: [
+                        FormLabel(labelText: "Phone Number"),
+                        TextFormField(
+                          controller: userProvider.phoneController,
+                          keyboardType: TextInputType.phone,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(color: ColorManager.grey),
+                          decoration: InputDecoration(
+                            prefixIcon: ClipRRect(
+                                child: Image.asset(
+                              ImageAssets.flag,
+                              scale: 8,
+                            )),
+                            hintText: "Enter Number",
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
+                                .copyWith(color: ColorManager.grey),
+                          ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Phone Number is Required";
+                            }
+                          },
+                        ),
+                        const SizedBox(
+                          height: AppSize.s20,
+                        ),
+                        FormLabel(labelText: "Password"),
+                        TextFormField(
+                          controller: userProvider.passwordController,
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(color: ColorManager.grey),
+                          decoration: InputDecoration(
+                            hintText: "Enter Password",
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
+                                .copyWith(color: ColorManager.grey),
+                          ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Password is Required";
+                            }
+                          },
+                        ),
+                        const SizedBox(
+                          height: AppSize.s40,
+                        ),
+                        ElevatedButton(
+                            style: ButtonStyle(
+                                fixedSize: MaterialStateProperty.all(
+                                    Size(AppSize.s250, AppSize.s45))),
+                            onPressed: () async {
+                              if (_forKey.currentState!.validate()) {
+                                showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (_) {
+                                      return ShowLoadingDialog();
+                                    });
+                                var res = await userProvider.loginUser();
+                                if (res.dataInfo == DataSource.SUCCESS) {
+                                  Navigator.pop(context);
+                                  Navigator.pushNamedAndRemoveUntil(context,
+                                      Routes.landing, (route) => false);
+                                  ShowFlushMessage.successFlushBar(context,
+                                      title: "Login Success",
+                                      description: res.message ?? "");
+                                  userProvider.clearAllVariable();
+                                } else {
+                                  Navigator.pop(context);
 
-//   @override
-//   void initState() {
-//     _bind();
-//     super.initState();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return _getContentWidget();
-//   }
-
-//   Widget _getContentWidget() {
-//     return Scaffold(
-//       body: Container(
-//         padding: EdgeInsets.only(top: AppPadding.p100),
-//         color: ColorManager.white,
-//         child: SingleChildScrollView(
-//           child: Form(
-//               key: _formKey,
-//               child: Column(
-//                 children: [
-//                   Image(image: AssetImage(ImageAssets.splashLogo)),
-//                   SizedBox(
-//                     height: AppSize.s28,
-//                   ),
-//                   Padding(
-//                     padding: EdgeInsets.only(
-//                         left: AppPadding.p28, right: AppPadding.p28),
-//                     child: StreamBuilder<bool>(
-//                         stream: _viewModel.outputIsUserNameValid,
-//                         builder: (context, snapshot) {
-//                           return TextFormField(
-//                             controller: _userNameController,
-//                             keyboardType: TextInputType.emailAddress,
-//                             decoration: InputDecoration(
-//                                 hintText: AppString.username,
-//                                 labelText: AppString.username,
-//                                 errorText: (snapshot.data ?? true)
-//                                     ? null
-//                                     : AppString.usernameError),
-//                           );
-//                         }),
-//                   ),
-//                   SizedBox(
-//                     height: AppSize.s28,
-//                   ),
-//                   Padding(
-//                     padding: EdgeInsets.only(
-//                         left: AppPadding.p28, right: AppPadding.p28),
-//                     child: StreamBuilder<bool>(
-//                         stream: _viewModel.outputIsPasswordValid,
-//                         builder: (context, snapshot) {
-//                           return TextFormField(
-//                             controller: _passwordController,
-//                             keyboardType: TextInputType.visiblePassword,
-//                             decoration: InputDecoration(
-//                                 hintText: AppString.password,
-//                                 labelText: AppString.password,
-//                                 errorText: (snapshot.data ?? true)
-//                                     ? null
-//                                     : AppString.passwordError),
-//                           );
-//                         }),
-//                   ),
-//                   SizedBox(
-//                     height: AppSize.s28,
-//                   ),
-//                   Padding(
-//                     padding: const EdgeInsets.only(
-//                         left: AppPadding.p28, right: AppPadding.p28),
-//                     child: StreamBuilder<bool>(
-//                       stream: _viewModel.outputIsAllInputValid,
-//                       builder: (context, snapshot) {
-//                         // log(snapshot.data.toString());
-//                         return SizedBox(
-//                           width: double.infinity,
-//                           height: AppSize.s40,
-//                           child: ElevatedButton(
-//                               onPressed: (snapshot.data ?? false)
-//                                   ? () {
-//                                       _viewModel.login();
-//                                     }
-//                                   : null,
-//                               child: Text(AppString.login)),
-//                         );
-//                       },
-//                     ),
-//                   ),
-//                   Padding(
-//                     padding: EdgeInsets.only(
-//                         top: AppPadding.p8,
-//                         left: AppPadding.p28,
-//                         right: AppPadding.p28),
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         TextButton(
-//                           onPressed: () {
-//                             Navigator.pushNamed(
-//                                 context, Routes.forgetPasswordRoute);
-//                           },
-//                           child: Text(
-//                             AppString.forgetPassword,
-//                             style: Theme.of(context).textTheme.subtitle1,
-//                             textAlign: TextAlign.end,
-//                           ),
-//                         ),
-//                         TextButton(
-//                           onPressed: () {
-//                             Navigator.pushNamed(context, Routes.registerRoute);
-//                           },
-//                           child: Text(
-//                             AppString.registerText,
-//                             style: Theme.of(context).textTheme.subtitle1,
-//                             textAlign: TextAlign.end,
-//                           ),
-//                         )
-//                       ],
-//                     ),
-//                   )
-//                 ],
-//               )),
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   void dispose() {
-//     _viewModel.dispose();
-//     super.dispose();
-//   }
-// }
+                                  showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (_) => ResponseHandelingDialog(
+                                          responseHandler: res,
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          }));
+                                }
+                              } else {
+                                return;
+                              }
+                            },
+                            child: Text(
+                              "Login",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayLarge!
+                                  .copyWith(color: ColorManager.white),
+                            ))
+                      ],
+                    )),
+                const SizedBox(
+                  height: AppSize.s40,
+                ),
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Container(
+                          width: AppSize.s100,
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(
+                                      color: ColorManager.lightGrey))),
+                        ),
+                        Text("Or"),
+                        Container(
+                          width: AppSize.s100,
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom:
+                                      BorderSide(color: ColorManager.grey))),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: AppSize.s28,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Don't have an account ? "),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .pushNamed(Routes.registerRoute);
+                            userProvider.clearAllVariable();
+                          },
+                          child: Text(
+                            "Register",
+                            style: Theme.of(context).textTheme.displayMedium,
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: AppSize.s40,
+                ),
+                const Text(
+                  "By providing phone number, I hereby agree and\n accept the Terms of Service and Privacy Policy",
+                  textAlign: TextAlign.center,
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
