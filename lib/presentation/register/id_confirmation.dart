@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+
 import 'package:gantabya_app/app/provider/user_provider/user_provider.dart';
 import 'package:gantabya_app/presentation/register/app_bar_registeration.dart';
 import 'package:gantabya_app/presentation/register/label_widget_with_required.dart';
@@ -25,7 +24,6 @@ class IdConfirmation extends StatefulWidget {
 }
 
 class _IdConfirmationState extends State<IdConfirmation> {
-  File? selectedImage;
   ImagePicker picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
@@ -53,7 +51,7 @@ class _IdConfirmationState extends State<IdConfirmation> {
                         Card(
                           child: Container(
                             width: double.infinity,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: AppPadding.p12,
                                 vertical: AppPadding.p12),
                             child: Column(
@@ -67,9 +65,10 @@ class _IdConfirmationState extends State<IdConfirmation> {
                                   child: ClipRRect(
                                       borderRadius:
                                           BorderRadius.circular(AppSize.s12),
-                                      child: selectedImage != null
+                                      child: userProvider.idConfirmationImage !=
+                                              null
                                           ? Image.file(
-                                              selectedImage!,
+                                              userProvider.idConfirmationImage!,
                                               fit: BoxFit.cover,
                                             )
                                           : Image.asset(
@@ -93,10 +92,13 @@ class _IdConfirmationState extends State<IdConfirmation> {
                                                         await picker.pickImage(
                                                             source: ImageSource
                                                                 .camera);
-                                                    setState(() {
-                                                      selectedImage =
-                                                          File(img!.path);
-                                                    });
+                                                    // setState(() {
+                                                    //   selectedImage =
+                                                    //       File(img!.path);
+                                                    // });
+                                                    userProvider
+                                                            .setIdConfirmationImage =
+                                                        File(img!.path);
                                                     Navigator.pop(context);
                                                   } catch (err) {}
                                                 },
@@ -106,10 +108,13 @@ class _IdConfirmationState extends State<IdConfirmation> {
                                                         await picker.pickImage(
                                                             source: ImageSource
                                                                 .gallery);
-                                                    setState(() {
-                                                      selectedImage =
-                                                          File(img!.path);
-                                                    });
+                                                    // setState(() {
+                                                    //   selectedImage =
+                                                    //       File(img!.path);
+                                                    // });
+                                                    userProvider
+                                                            .setIdConfirmationImage =
+                                                        File(img!.path);
                                                     Navigator.pop(context);
                                                   } catch (err) {}
                                                 },
@@ -149,11 +154,11 @@ Photos taken in sunglasses are not allowed.""",
                             fixedSize: MaterialStateProperty.all(
                                 Size(AppSize.s200, AppSize.s40))),
                         onPressed: () {
-                          if (selectedImage != null) {
-                            Map<String, dynamic> map = {
-                              "confirmation_image": selectedImage
-                            };
-                            userProvider.registerIdConfirmation(map);
+                          if (userProvider.idConfirmationImage != null) {
+                            // Map<String, dynamic> map = {
+                            //   "confirmation_image": selectedImage
+                            // };
+                            userProvider.registerIdConfirmation();
                             Navigator.popAndPushNamed(
                                 context, Routes.vehicleInfo);
                           } else {

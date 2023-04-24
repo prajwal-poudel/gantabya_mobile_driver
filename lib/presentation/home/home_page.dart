@@ -11,6 +11,7 @@ import 'package:gantabya_app/data/response/user_model_response.dart';
 import 'package:gantabya_app/domain/model/model.dart';
 import 'package:gantabya_app/presentation/resources/assets_manager.dart';
 import 'package:gantabya_app/presentation/resources/color_manager.dart';
+import 'package:gantabya_app/presentation/resources/routes_manager.dart';
 import 'package:gantabya_app/presentation/resources/strings_manager.dart';
 import 'package:gantabya_app/presentation/resources/values_manager.dart';
 import 'package:gantabya_app/presentation/widget/dialog_box.dart';
@@ -95,6 +96,13 @@ class _HomePageState extends State<HomePage> {
         incommingRequests.add(incomingData);
       });
       expandableWidget();
+    });
+
+    socket?.on("bookingMessage", (customer) {
+      log(customer.toString());
+      CustomerDataModel customerData = CustomerDataModel.fromJson(customer);
+      Navigator.pushNamed(context, Routes.rideConfirmation,
+          arguments: customerData);
     });
   }
 

@@ -24,8 +24,6 @@ class DriverLicense extends StatefulWidget {
 }
 
 class _DriverLicenseState extends State<DriverLicense> {
-  TextEditingController licenseNumberController = TextEditingController();
-  File? selectedImage;
   ImagePicker picker = ImagePicker();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
@@ -55,7 +53,7 @@ class _DriverLicenseState extends State<DriverLicense> {
                             isRequired: true,
                           ),
                           TextFormField(
-                            controller: licenseNumberController,
+                            controller: userProvider.licenseNumberController,
                             keyboardType: TextInputType.text,
                             style: Theme.of(context).textTheme.titleLarge,
                             decoration: const InputDecoration(
@@ -80,9 +78,10 @@ class _DriverLicenseState extends State<DriverLicense> {
                             child: Container(
                                 width: double.infinity,
                                 height: AppSize.s180,
-                                child: selectedImage != null
+                                child: userProvider.licenseImage != null
                                     ? ClipRRect(
-                                        child: Image.file(selectedImage!))
+                                        child: Image.file(
+                                            userProvider.licenseImage!))
                                     : InkWell(
                                         onTap: () {
                                           showDialog(
@@ -97,10 +96,13 @@ class _DriverLicenseState extends State<DriverLicense> {
                                                                 source:
                                                                     ImageSource
                                                                         .camera);
-                                                        setState(() {
-                                                          selectedImage =
-                                                              File(img!.path);
-                                                        });
+                                                        // setState(() {
+                                                        //   File(img!.path);
+                                                        // });
+
+                                                        userProvider
+                                                                .setLicenseImage =
+                                                            File(img!.path);
                                                         Navigator.pop(context);
                                                       } catch (err) {}
                                                     },
@@ -111,10 +113,13 @@ class _DriverLicenseState extends State<DriverLicense> {
                                                                 source:
                                                                     ImageSource
                                                                         .gallery);
-                                                        setState(() {
-                                                          selectedImage =
-                                                              File(img!.path);
-                                                        });
+                                                        // setState(() {
+                                                        //  selectedImage =
+                                                        //       File(img!.path);
+                                                        // });
+                                                        userProvider
+                                                                .setLicenseImage =
+                                                            File(img!.path);
                                                         Navigator.pop(context);
                                                       } catch (err) {}
                                                     },
@@ -153,13 +158,13 @@ class _DriverLicenseState extends State<DriverLicense> {
                                   Size(AppSize.s200, AppSize.s40))),
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              if (selectedImage != null) {
-                                Map<String, dynamic> map = {
-                                  "license_number":
-                                      licenseNumberController.text,
-                                  "license_image": selectedImage
-                                };
-                                userProvider.registerDriverLicense(map);
+                              if (userProvider.licenseImage != null) {
+                                // Map<String, dynamic> map = {
+                                //   "license_number":
+                                //       licenseNumberController.text,
+                                //   "license_image": selectedImage
+                                // };
+                                userProvider.registerDriverLicense();
                                 Navigator.popAndPushNamed(
                                     context, Routes.idConfirmation);
                               } else {

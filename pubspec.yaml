@@ -95,6 +95,7 @@ flutter:
     - assets/images/success-popup.json
     - assets/images/alert.json
     - assets/images/not-found.json
+    - assets/images/server-error.json
     - assets/images/image_choose.svg
     - assets/images/imageslist.svg
     - assets/images/image_upload.svg

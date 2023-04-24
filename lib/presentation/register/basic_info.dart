@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'package:gantabya_app/app/provider/user_provider/user_provider.dart';
 import 'package:gantabya_app/presentation/resources/color_manager.dart';
 import 'package:gantabya_app/presentation/resources/routes_manager.dart';
+import 'package:gantabya_app/presentation/widget/flush_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -24,16 +26,9 @@ class BasicInfo extends StatefulWidget {
 
 class _BasicInfoState extends State<BasicInfo> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String selectedGender = "Male";
-  String? dob;
-  final ImagePicker picker = ImagePicker();
-  XFile? selectedImage;
-  File? imageToShow;
 
-  TextEditingController fullnameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
+  final ImagePicker picker = ImagePicker();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,12 +62,12 @@ class _BasicInfoState extends State<BasicInfo> {
                                     color: ColorManager.lightGrey,
                                     borderRadius:
                                         BorderRadius.circular(AppSize.s57)),
-                                child: imageToShow != null
+                                child: userProvider.profilePicture != null
                                     ? ClipRRect(
                                         borderRadius:
                                             BorderRadius.circular(AppSize.s57),
                                         child: Image.file(
-                                          imageToShow!,
+                                          userProvider.profilePicture!,
                                           fit: BoxFit.cover,
                                         ),
                                       )
@@ -93,27 +88,35 @@ class _BasicInfoState extends State<BasicInfo> {
                                         builder: (_) => FileChooseOptionDialog(
                                               onCamera: () async {
                                                 try {
-                                                  selectedImage =
+                                                  XFile? selectedImage =
                                                       await picker.pickImage(
                                                           source: ImageSource
                                                               .camera);
-                                                  setState(() {
-                                                    imageToShow = File(
-                                                        selectedImage!.path);
-                                                  });
+                                                  // setState(() {
+                                                  //   imageToShow = File(
+                                                  //       selectedImage!.path);
+                                                  // });
+
+                                                  userProvider
+                                                          .setProfilePicture =
+                                                      File(selectedImage!.path);
+
                                                   Navigator.pop(context);
                                                 } catch (err) {}
                                               },
                                               onGallery: () async {
                                                 try {
-                                                  selectedImage =
+                                                  XFile? selectedImage =
                                                       await picker.pickImage(
                                                           source: ImageSource
                                                               .gallery);
-                                                  setState(() {
-                                                    imageToShow = File(
-                                                        selectedImage!.path);
-                                                  });
+                                                  // setState(() {
+                                                  //   imageToShow = File(
+                                                  //       selectedImage!.path);
+                                                  // });
+                                                  userProvider
+                                                          .setProfilePicture =
+                                                      File(selectedImage!.path);
                                                   Navigator.pop(context);
                                                 } catch (err) {}
                                               },
@@ -148,7 +151,7 @@ class _BasicInfoState extends State<BasicInfo> {
                                     isRequired: true,
                                   ),
                                   TextFormField(
-                                    controller: fullnameController,
+                                    controller: userProvider.fullnameController,
                                     keyboardType: TextInputType.text,
                                     style:
                                         Theme.of(context).textTheme.titleLarge,
@@ -169,7 +172,7 @@ class _BasicInfoState extends State<BasicInfo> {
                                     isRequired: true,
                                   ),
                                   DropdownButtonFormField(
-                                    value: selectedGender,
+                                    value: userProvider.selectedGender,
                                     items: ["Male", "Female", "Others"]
                                         .asMap()
                                         .entries
@@ -184,7 +187,7 @@ class _BasicInfoState extends State<BasicInfo> {
                                             ))
                                         .toList(),
                                     onChanged: (value) {
-                                      selectedGender = value!;
+                                      userProvider.setGender = value!;
                                     },
                                     validator: (value) {
                                       if (value!.isEmpty) {
@@ -208,8 +211,9 @@ class _BasicInfoState extends State<BasicInfo> {
                                           firstDate: DateTime(1950),
                                           lastDate: DateTime.now());
                                       setState(() {
-                                        dob = DateFormat('yyyy-mm-dd')
-                                            .format(date!);
+                                        userProvider.setDob =
+                                            DateFormat('yyyy-mm-dd')
+                                                .format(date!);
                                       });
                                     },
                                     child: Container(
@@ -223,7 +227,9 @@ class _BasicInfoState extends State<BasicInfo> {
                                               color: ColorManager.lightGrey,
                                               width: AppSize.s1_5)),
                                       child: Text(
-                                        dob == null ? "" : dob!,
+                                        userProvider.dob == null
+                                            ? ""
+                                            : userProvider.dob!,
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleLarge,
@@ -239,7 +245,7 @@ class _BasicInfoState extends State<BasicInfo> {
                                     isRequired: true,
                                   ),
                                   TextFormField(
-                                    controller: emailController,
+                                    controller: userProvider.emailController,
                                     keyboardType: TextInputType.emailAddress,
                                     style:
                                         Theme.of(context).textTheme.titleLarge,
@@ -266,7 +272,7 @@ class _BasicInfoState extends State<BasicInfo> {
                                     isRequired: true,
                                   ),
                                   TextFormField(
-                                    controller: passwordController,
+                                    controller: userProvider.passwordController,
                                     keyboardType: TextInputType.visiblePassword,
                                     obscureText: true,
                                     style:
@@ -292,7 +298,8 @@ class _BasicInfoState extends State<BasicInfo> {
                                     isRequired: true,
                                   ),
                                   TextFormField(
-                                    controller: confirmPasswordController,
+                                    controller:
+                                        userProvider.confirmPasswordController,
                                     keyboardType: TextInputType.visiblePassword,
                                     obscureText: true,
                                     style:
@@ -304,7 +311,9 @@ class _BasicInfoState extends State<BasicInfo> {
                                         return "Confirm Password is required";
                                       }
 
-                                      if (value != passwordController.text) {
+                                      if (value !=
+                                          userProvider
+                                              .passwordController.text) {
                                         return "Confirm Password should match passwod";
                                       }
                                     },
@@ -317,20 +326,18 @@ class _BasicInfoState extends State<BasicInfo> {
                                           const Size(
                                               AppSize.s250, AppSize.s40))),
                                   onPressed: () {
-                                    if (_formKey.currentState!.validate() &&
-                                        dob != null &&
-                                        dob!.isNotEmpty) {
-                                      Map<String, dynamic> dataMap = {
-                                        "full_name": fullnameController.text,
-                                        "gender": selectedGender,
-                                        "date_of_birth": DateTime.parse(dob!),
-                                        "email": emailController.text,
-                                        "password": passwordController.text,
-                                        "profile_picture": imageToShow
-                                      };
-                                      userProvider.registerBasicInfo(dataMap);
-                                      Navigator.popAndPushNamed(
-                                          context, Routes.driverLicense);
+                                    if (_formKey.currentState!.validate()) {
+                                      if (userProvider.dob != null &&
+                                          userProvider.dob!.isNotEmpty) {
+                                        userProvider.registerBasicInfo();
+                                        Navigator.popAndPushNamed(
+                                            context, Routes.driverLicense);
+                                      } else {
+                                        ShowFlushMessage.errorFlushBar(context,
+                                            title: "Date of Birth",
+                                            description:
+                                                "Date of birth is required");
+                                      }
                                     } else {
                                       return;
                                     }

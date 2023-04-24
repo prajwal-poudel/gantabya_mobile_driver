@@ -24,6 +24,82 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
+// class UserRegisterationModel {
+//   UserRegisterationModel(
+//       {this.fullName,
+//       this.gender,
+//       this.dateOfBirth,
+//       this.email,
+//       this.password,
+//       this.profilePicture,
+//       this.userRole});
+
+//   String? fullName;
+//   String? gender;
+//   DateTime? dateOfBirth;
+//   String? email;
+//   String? password;
+//   File? profilePicture;
+//   String? userRole = "Driver";
+
+//   Future<Map<String, dynamic>> toJson() async {
+//     final map = <String, dynamic>{};
+//     map['full_name'] = fullName;
+//     map['gender'] = gender;
+//     map['date_of_birth'] = dateOfBirth;
+//     map['email'] = email;
+//     map['password'] = password;
+//     if (profilePicture != null) {
+//       map['profile_picture'] = await MultipartFile.fromFile(
+//         profilePicture!.path,
+//         filename: profilePicture?.path.split('/').last,
+//       );
+//     }
+//     map["user_role"] = userRole;
+
+//     return map;
+//   }
+
+//   UserRegisterationModel fromJson(Map<String, dynamic> map) {
+//     return UserRegisterationModel(
+//         fullName: map["full_name"],
+//         gender: map["gender"],
+//         dateOfBirth: map["date_of_birth"],
+//         email: map["email"],
+//         password: map["password"],
+//         profilePicture: map["profile_picture"],
+//         userRole: map["user_role"]);
+//   }
+// }
+
+// class DriverRegistrationModel {
+//   DriverRegistrationModel({this.verificationImage});
+//   int? verified = 0;
+//   File? verificationImage;
+//   double? ratings = 0.0;
+
+//   Future<Map<String, dynamic>> toJson() async {
+//     final map = <String, dynamic>{};
+//     map['verified'] = verified;
+//     map['ratings'] = ratings;
+
+//     if (verificationImage != null) {
+//       map['verification_mage'] = await MultipartFile.fromFile(
+//         verificationImage!.path,
+//         filename: verificationImage?.path.split('/').last,
+//       );
+//     }
+
+//     return map;
+//   }
+
+//   DriverRegistrationModel fromJson(Map<String, dynamic> map) {
+//     return DriverRegistrationModel(
+//       verificationImage: map["verification_image"],
+//     );
+//   }
+// }
+
 class BasicInfoModal {
   BasicInfoModal(
       {this.fullName,

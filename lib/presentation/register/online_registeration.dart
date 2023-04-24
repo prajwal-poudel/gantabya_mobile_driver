@@ -1,10 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gantabya_app/app/provider/user_provider/user_provider.dart';
 import 'package:gantabya_app/app/provider/vehicle_provider/vehicle_provider.dart';
+import 'package:gantabya_app/data/network/error_handler.dart';
 import 'package:gantabya_app/presentation/resources/routes_manager.dart';
 
 import 'package:gantabya_app/presentation/resources/values_manager.dart';
+import 'package:gantabya_app/presentation/utils/ui_management.dart';
+import 'package:gantabya_app/presentation/widget/dialog_box.dart';
 import 'package:gantabya_app/presentation/widget/lottie_widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -53,7 +58,8 @@ class _OnlineRegisterationState extends State<OnlineRegisteration> {
               ),
             ),
           ),
-          Consumer<UserProvider>(builder: (context, userProvider, _) {
+          Consumer2<UserProvider, VehicleProvider>(
+              builder: (context, userProvider, vehicleProvider, _) {
             return Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -104,7 +110,26 @@ class _OnlineRegisterationState extends State<OnlineRegisteration> {
                                 userProvider.driverLicenseFilled &&
                                 userProvider.idConfirmationFilled &&
                                 userProvider.vehicleInfoFilled
-                            ? () {}
+                            ? () async {
+                                DialogLoader.displayDialogLoader(context);
+                                var response = await userProvider.registerUser(
+                                    vehicleProvider.selectedVehicle);
+                                if (response.dataInfo == DataSource.SUCCESS) {
+                                  DialogLoader.destroyDialogLoader(context);
+                                  DialogResponse.displayDialogResponse(
+                                      context, response, onClick: () {
+                                    userProvider.clearAllVariable();
+                                    Navigator.popAndPushNamed(
+                                        context, Routes.loginRoute);
+                                    userProvider.clearAllVariable();
+                                  });
+                                } else {
+                                  DialogLoader.destroyDialogLoader(context);
+
+                                  DialogResponse.displayDialogResponse(
+                                      context, response);
+                                }
+                              }
                             : null,
                         child: Text(
                           "Submit",
