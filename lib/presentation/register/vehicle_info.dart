@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import '../../app/provider/user_provider/user_provider.dart';
 import '../resources/assets_manager.dart';
 import '../resources/color_manager.dart';
-import '../resources/routes_manager.dart';
+
 import '../resources/values_manager.dart';
 import '../widget/dialog_box.dart';
 import '../widget/flush_bar.dart';
@@ -25,9 +25,7 @@ class VehicleInfo extends StatefulWidget {
 
 class _VehicleInfoState extends State<VehicleInfo> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  File? selectedBillBook;
-  File? selectedVehicleImage;
-  TextEditingController vehicleNumberController = TextEditingController();
+
   ImagePicker picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
@@ -56,7 +54,7 @@ class _VehicleInfoState extends State<VehicleInfo> {
                             isRequired: true,
                           ),
                           TextFormField(
-                            controller: vehicleNumberController,
+                            controller: userProvider.vehicleNumberController,
                             keyboardType: TextInputType.text,
                             style: Theme.of(context).textTheme.titleLarge,
                             decoration: const InputDecoration(
@@ -82,9 +80,10 @@ class _VehicleInfoState extends State<VehicleInfo> {
                             child: Container(
                                 width: double.infinity,
                                 height: AppSize.s180,
-                                child: selectedBillBook != null
+                                child: userProvider.billbookImage != null
                                     ? ClipRRect(
-                                        child: Image.file(selectedBillBook!))
+                                        child: Image.file(
+                                            userProvider.billbookImage!))
                                     : InkWell(
                                         onTap: () {
                                           showDialog(
@@ -99,10 +98,13 @@ class _VehicleInfoState extends State<VehicleInfo> {
                                                                 source:
                                                                     ImageSource
                                                                         .gallery);
-                                                        setState(() {
-                                                          selectedBillBook =
-                                                              File(img!.path);
-                                                        });
+                                                        // setState(() {
+                                                        //   selectedBillBook =
+                                                        //       File(img!.path);
+                                                        // });
+                                                        userProvider
+                                                                .setBillbookImage =
+                                                            File(img!.path);
                                                         Navigator.pop(context);
                                                       } catch (err) {}
                                                     },
@@ -113,10 +115,13 @@ class _VehicleInfoState extends State<VehicleInfo> {
                                                                 source:
                                                                     ImageSource
                                                                         .gallery);
-                                                        setState(() {
-                                                          selectedBillBook =
-                                                              File(img!.path);
-                                                        });
+                                                        // setState(() {
+                                                        //   selectedBillBook =
+                                                        //       File(img!.path);
+                                                        // });
+                                                        userProvider
+                                                                .setBillbookImage =
+                                                            File(img!.path);
                                                         Navigator.pop(context);
                                                       } catch (err) {}
                                                     },
@@ -158,10 +163,10 @@ class _VehicleInfoState extends State<VehicleInfo> {
                             child: Container(
                                 width: double.infinity,
                                 height: AppSize.s180,
-                                child: selectedVehicleImage != null
+                                child: userProvider.vehicleImage != null
                                     ? ClipRRect(
-                                        child:
-                                            Image.file(selectedVehicleImage!))
+                                        child: Image.file(
+                                            userProvider.vehicleImage!))
                                     : InkWell(
                                         onTap: () {
                                           showDialog(
@@ -176,10 +181,13 @@ class _VehicleInfoState extends State<VehicleInfo> {
                                                                 source:
                                                                     ImageSource
                                                                         .camera);
-                                                        setState(() {
-                                                          selectedVehicleImage =
-                                                              File(img!.path);
-                                                        });
+                                                        // setState(() {
+                                                        //   selectedVehicleImage =
+                                                        //       File(img!.path);
+                                                        // });
+                                                        userProvider
+                                                                .setVehicleImage =
+                                                            File(img!.path);
                                                         Navigator.pop(context);
                                                       } catch (err) {}
                                                     },
@@ -190,10 +198,13 @@ class _VehicleInfoState extends State<VehicleInfo> {
                                                                 source:
                                                                     ImageSource
                                                                         .gallery);
-                                                        setState(() {
-                                                          selectedVehicleImage =
-                                                              File(img!.path);
-                                                        });
+                                                        // setState(() {
+                                                        //   selectedVehicleImage =
+                                                        //       File(img!.path);
+                                                        // });
+                                                        userProvider
+                                                                .setVehicleImage =
+                                                            File(img!.path);
                                                         Navigator.pop(context);
                                                       } catch (err) {}
                                                     },
@@ -232,20 +243,20 @@ class _VehicleInfoState extends State<VehicleInfo> {
                                   Size(AppSize.s200, AppSize.s40))),
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              if (selectedBillBook == null ||
-                                  selectedVehicleImage == null) {
+                              if (userProvider.vehicleImage == null ||
+                                  userProvider.billbookImage == null) {
                                 ShowFlushMessage.errorFlushBar(context,
                                     title: "Image",
                                     description:
                                         "Bill Book and Vehicle image is required");
                               } else {
-                                Map<String, dynamic> map = {
-                                  "vehicle_number":
-                                      vehicleNumberController.text,
-                                  "billbook_image": selectedBillBook,
-                                  "vehicle_image": selectedVehicleImage
-                                };
-                                userProvider.registerVehicleInfo(map);
+                                // Map<String, dynamic> map = {
+                                //   "vehicle_number":
+                                //       vehicleNumberController.text,
+                                //   "billbook_image": selectedBillBook,
+                                //   "vehicle_image": selectedVehicleImage
+                                // };
+                                userProvider.registerVehicleInfo();
                                 Navigator.pop(context);
                               }
                             } else {

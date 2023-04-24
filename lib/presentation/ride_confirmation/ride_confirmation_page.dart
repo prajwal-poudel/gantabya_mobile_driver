@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gantabya_app/domain/model/customer_data_model.dart';
-import 'package:gantabya_app/domain/model/model.dart';
-import 'package:gantabya_app/presentation/driver_pickup/goto_pickup.dart';
 import 'package:gantabya_app/presentation/resources/color_manager.dart';
 import 'package:gantabya_app/presentation/resources/routes_manager.dart';
 import 'package:gantabya_app/presentation/resources/strings_manager.dart';
 import 'package:gantabya_app/presentation/widget/ride_information.dart';
 
 import '../resources/values_manager.dart';
-import '../widget/dialog_box.dart';
 
 class RideConfirmationPage extends StatefulWidget {
   static const route = "/rideConfirmation";

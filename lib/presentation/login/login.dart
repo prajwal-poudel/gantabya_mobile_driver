@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:gantabya_app/presentation/login/login_widget.dart';
+import 'package:gantabya_app/presentation/utils/ui_management.dart';
 
 import 'package:provider/provider.dart';
 
@@ -27,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     UserProvider userProvider = Provider.of<UserProvider>(context);
+    userProvider.clearAllVariable();
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -101,18 +103,13 @@ class _LoginPageState extends State<LoginPage> {
                         ElevatedButton(
                             style: ButtonStyle(
                                 fixedSize: MaterialStateProperty.all(
-                                    Size(AppSize.s250, AppSize.s45))),
+                                    const Size(AppSize.s250, AppSize.s45))),
                             onPressed: () async {
                               if (_forKey.currentState!.validate()) {
-                                showDialog(
-                                    barrierDismissible: false,
-                                    context: context,
-                                    builder: (_) {
-                                      return ShowLoadingDialog();
-                                    });
+                                DialogLoader.displayDialogLoader(context);
                                 var res = await userProvider.loginUser();
                                 if (res.dataInfo == DataSource.SUCCESS) {
-                                  Navigator.pop(context);
+                                  DialogLoader.destroyDialogLoader(context);
                                   Navigator.pushNamedAndRemoveUntil(context,
                                       Routes.landing, (route) => false);
                                   ShowFlushMessage.successFlushBar(context,
@@ -122,14 +119,8 @@ class _LoginPageState extends State<LoginPage> {
                                 } else {
                                   Navigator.pop(context);
 
-                                  showDialog(
-                                      barrierDismissible: false,
-                                      context: context,
-                                      builder: (_) => ResponseHandelingDialog(
-                                          responseHandler: res,
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          }));
+                                  DialogResponse.displayDialogResponse(
+                                      context, res);
                                 }
                               } else {
                                 return;

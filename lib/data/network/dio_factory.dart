@@ -7,6 +7,7 @@ import '../../app/app_prefs.dart';
 import '../../app/constant.dart';
 
 const String APPLICATION_JSON = "application/json";
+const String FORM_DATA = "multipart/form-data";
 const String CONTENT_TYPE = "content-type";
 const String ACCEPT = "accept";
 const String AUTHORIZATION = "authorization";

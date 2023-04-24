@@ -27,7 +27,7 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
     // initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
     areaLimit: const BoundingBox.world(),
   );
-  GeoPoint geoPoint = GeoPoint(latitude: 27.6866, longitude: 83.4323);
+  // GeoPoint geoPoint = GeoPoint(latitude: widget.customerInfo.source!.latitude!, longitude: 83.4323);
 
   bool isExpanded = false;
   bool showExpansion = false;
@@ -72,7 +72,11 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
       ),
       body: Stack(
         children: [
-          MapWithRoute(mapController: mapController, destination: geoPoint),
+          MapWithRoute(
+              mapController: mapController,
+              destination: GeoPoint(
+                  latitude: widget.customerInfo.source!.latitude!,
+                  longitude: widget.customerInfo.source!.longitude!)),
           Positioned(
             bottom: 0,
             child: AnimatedContainer(
@@ -212,7 +216,7 @@ class _CustomerPickupPageState extends State<CustomerPickupPage> {
                   height: AppSize.s12,
                 ),
                 Text(
-                    "${GeographyUtils.distanceBetweenTwoPoints(LatLng(latitude: geoPoint.latitude, longitude: geoPoint.longitude), LatLng(latitude: widget.customerInfo.source!.latitude, longitude: widget.customerInfo.source!.longitude)).toStringAsFixed(2)} KM",
+                    "${GeographyUtils.distanceBetweenTwoPoints(LatLng(latitude: widget.customerInfo.source!.latitude, longitude: widget.customerInfo.source!.longitude), LatLng(latitude: widget.customerInfo.source!.latitude, longitude: widget.customerInfo.source!.longitude)).toStringAsFixed(2)} KM",
                     style: Theme.of(context).textTheme.titleLarge)
               ],
             ),
