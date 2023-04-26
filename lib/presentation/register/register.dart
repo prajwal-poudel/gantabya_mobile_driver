@@ -28,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     UserProvider userProvider = Provider.of<UserProvider>(context);
-    userProvider.clearAllVariable();
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
